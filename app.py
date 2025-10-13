@@ -1,118 +1,141 @@
 import streamlit as st
 import psycopg2
-from psycopg2.extras import DictCursor # Facilita o acesso às colunas pelo nome
+import bcrypt  # Biblioteca para senhas
+from psycopg2.extras import DictCursor
 
 # --- Configuração da Página ---
 st.set_page_config(
-    page_title="Ferramenta de Avaliação de Tweets",
-    page_icon="📊",
-    layout="centered"
+    page_title="Avaliação de Tweets",
+    page_icon="🔒",
+    layout="wide"
 )
 
-# --- Título e Descrição ---
-st.title("📊 Ferramenta de Avaliação de Tweets")
-st.write(
-    "Clique em 'Positivo' ou 'Negativo' para classificar o tweet exibido. "
-    "Sua avaliação será salva no banco de dados."
-)
+# --- FUNÇÃO DE LOGIN ---
+def check_password():
+    """Retorna `True` se o usuário estiver logado, `False` caso contrário."""
 
-# --- Funções de Banco de Dados ---
+    # Se o usuário já está logado, não faz nada
+    if st.session_state.get("logged_in", False):
+        return True
 
+    # --- Layout da Tela de Login ---
+    st.title("🔒 Acesso Restrito")
+    st.write("Por favor, insira a senha para continuar.")
+
+    # Pega o hash da senha dos segredos da aplicação
+    try:
+        hashed_password = st.secrets["credentials"]["hashed_password"].encode('utf-8')
+    except (KeyError, AttributeError):
+        st.error("ERRO CRÍTICO: A senha não foi configurada nos segredos da aplicação.")
+        return False
+    
+    # Cria o formulário de login
+    with st.form("login_form"):
+        password = st.text_input("Senha", type="password")
+        submitted = st.form_submit_button("Entrar")
+
+        if submitted:
+            # Verifica se a senha inserida corresponde ao hash guardado
+            if bcrypt.checkpw(password.encode('utf-8'), hashed_password):
+                st.session_state["logged_in"] = True
+                st.rerun()  # Recarrega o app para mostrar a tela principal
+            else:
+                st.error("Senha incorreta. Tente novamente.")
+    
+    return False
+
+# --- FUNÇÕES DE BANCO DE DADOS (sem alteração) ---
 @st.cache_resource
 def init_connection():
-    """
-    Inicializa a conexão com o banco de dados PostgreSQL.
-    Usa o cache de recursos do Streamlit para manter a conexão viva.
-    """
     try:
-        conn = psycopg2.connect(st.secrets["database"]["url"])
-        return conn
-    except (psycopg2.OperationalError, KeyError) as e:
-        st.error(f"Erro ao conectar ao banco de dados: {e}")
-        st.info("Verifique se as credenciais no arquivo .streamlit/secrets.toml estão corretas.")
+        return psycopg2.connect(st.secrets["database"]["url"])
+    except (psycopg2.OperationalError, KeyError):
+        st.error("Erro ao conectar ao banco de dados. Verifique os segredos.")
         return None
 
+def fetch_evaluation_stats(_connection):
+    if not _connection: return {}
+    with _connection.cursor(cursor_factory=DictCursor) as cur:
+        cur.execute("""
+            SELECT
+                COUNT(*) AS total_geral,
+                COUNT(avaliacao) AS total_avaliados,
+                SUM(CASE WHEN avaliacao = TRUE THEN 1 ELSE 0 END) AS total_true,
+                SUM(CASE WHEN avaliacao = FALSE THEN 1 ELSE 0 END) AS total_false
+            FROM tweets_avaliacao;
+        """)
+        return cur.fetchone()
+
 def fetch_tweets_to_evaluate(_connection):
-    """
-    Busca tweets cuja coluna 'avaliacao' é NULA.
-    Retorna uma lista de registros (dicionários).
-    """
-    if _connection is None:
-        return []
+    if not _connection: return []
     with _connection.cursor(cursor_factory=DictCursor) as cur:
         cur.execute("SELECT id_tweet, texto_tweet FROM tweets_avaliacao WHERE avaliacao IS NULL;")
         return cur.fetchall()
 
 def update_tweet_evaluation(_connection, tweet_id, evaluation: bool):
-    """
-    Atualiza a avaliação (como um booleano) e a data de atualização de um tweet.
-    """
-    if _connection is None:
-        return
-    
-    # Query SQL corrigida para usar %s para o booleano e NOW() para o timestamp
-    sql_update_query = """
-        UPDATE tweets_avaliacao 
-        SET 
-            avaliacao = %s, 
-            data_atualizacao = NOW() 
-        WHERE 
-            id_tweet = %s;
-    """
+    if not _connection: return
     with _connection.cursor() as cur:
-        cur.execute(sql_update_query, (evaluation, tweet_id))
+        cur.execute(
+            "UPDATE tweets_avaliacao SET avaliacao = %s, data_atualizacao = NOW() WHERE id_tweet = %s;",
+            (evaluation, tweet_id)
+        )
         _connection.commit()
 
-# --- Lógica Principal da Aplicação ---
+# --- LÓGICA PRINCIPAL DA APLICAÇÃO ---
 
-# Inicializa a conexão com o banco de dados
+# 1. Verifica a senha. Se não estiver logado, para a execução aqui.
+if not check_password():
+    st.stop()
+
+# 2. Se a senha estiver correta, o código abaixo é executado.
+st.sidebar.success("Acesso liberado!")
+st.title("📊 Dashboard e Ferramenta de Avaliação de Tweets")
+
 conn = init_connection()
 
-# Apenas prossiga se a conexão for bem-sucedida
 if conn:
-    # Carrega os tweets na primeira execução ou se a lista estiver vazia
+    # Seção de Indicadores (Dashboard)
+    stats = fetch_evaluation_stats(conn)
+    if stats:
+        total_geral, total_avaliados, total_true, total_false = stats.values()
+        percent_avaliados = (total_avaliados / total_geral * 100) if total_geral > 0 else 0
+        percent_true = (total_true / total_avaliados * 100) if total_avaliados > 0 else 0
+        percent_false = (total_false / total_avaliados * 100) if total_avaliados > 0 else 0
+        
+        st.markdown("### Resumo das Avaliações")
+        col1, col2, col3, col4, col5 = st.columns(5)
+        col1.metric("1. Total de Tweets", f"{total_geral:,}".replace(",", "."))
+        col2.metric("2. Total Avaliados", f"{total_avaliados:,}".replace(",", "."))
+        col3.metric("3. % Avaliados", f"{percent_avaliados:.1f}%")
+        col4.metric("4. % Positivos", f"{percent_true:.1f}%")
+        col5.metric("5. % Negativos", f"{percent_false:.1f}%")
+
+    st.markdown("---")
+
+    # Seção de Ferramenta de Avaliação
+    st.header("Área de Avaliação")
+    
     if 'tweets' not in st.session_state:
         st.session_state.tweets = fetch_tweets_to_evaluate(conn)
         st.session_state.current_index = 0
 
-    # Verifica se a lista de tweets está vazia (nenhum tweet para avaliar)
-    if not st.session_state.tweets:
-        st.info("🎉 Todos os tweets já foram avaliados! Nenhum trabalho pendente.")
-    
-    # Verifica se já passamos por todos os tweets da lista atual
-    elif st.session_state.current_index >= len(st.session_state.tweets):
-        st.success("✨ Parabéns! Você avaliou todos os tweets desta rodada.")
-        st.balloons()
-    
-    # Se ainda há tweets para avaliar, exibe a interface principal
+    if not st.session_state.tweets or st.session_state.current_index >= len(st.session_state.tweets):
+        st.success("✨ Parabéns! Nenhum tweet pendente de avaliação.")
+        if st.button("Buscar novos tweets"):
+            st.session_state.pop('tweets', None)
+            st.rerun()
     else:
-        # Pega o tweet atual da lista
         current_tweet = st.session_state.tweets[st.session_state.current_index]
         
-        # Extrai as informações do tweet (usando DictCursor, podemos acessar como um dicionário)
-        tweet_id = current_tweet['id_tweet']
-        tweet_text = current_tweet['texto_tweet']
-
-        # Exibe o progresso
-        total_tweets = len(st.session_state.tweets)
-        progress_text = f"Avaliando Tweet {st.session_state.current_index + 1} de {total_tweets}"
-        st.progress((st.session_state.current_index + 1) / total_tweets, text=progress_text)
+        st.markdown(f"> {current_tweet['texto_tweet']}")
         
-        # Exibe o texto do tweet em uma caixa de citação
-        st.markdown(f"> {tweet_text}", unsafe_allow_html=True)
-        st.markdown("---") # Linha divisória
+        btn_col1, btn_col2 = st.columns(2)
+        if btn_col1.button("Positivo 👍", use_container_width=True, type="primary"):
+            update_tweet_evaluation(conn, current_tweet['id_tweet'], True)
+            st.session_state.current_index += 1
+            st.rerun()
 
-        # Cria colunas para os botões
-        col1, col2 = st.columns(2)
-
-        with col1:
-            if st.button("Positivo 👍", use_container_width=True, type="primary"):
-                update_tweet_evaluation(conn, tweet_id, True)  # Passa o booleano True
-                st.session_state.current_index += 1
-                st.rerun()
-
-        with col2:
-            if st.button("Negativo 👎", use_container_width=True):
-                update_tweet_evaluation(conn, tweet_id, False) # Passa o booleano False
-                st.session_state.current_index += 1
-                st.rerun()
+        if btn_col2.button("Negativo 👎", use_container_width=True):
+            update_tweet_evaluation(conn, current_tweet['id_tweet'], False)
+            st.session_state.current_index += 1
+            st.rerun()
