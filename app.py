@@ -14,7 +14,6 @@ if not check_password():
 
 # --- Conteúdo da Página de Apresentação ---
 st.sidebar.success("Navegue pelas seções do projeto.")
-st.balloons()
 
 st.title("Projeto Integrador: Análise de Sentimentos em Tweets sobre Saúde Mental")
 
