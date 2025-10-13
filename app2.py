@@ -5,7 +5,7 @@ from psycopg2.extras import DictCursor
 
 # --- Configuração da Página ---
 st.set_page_config(
-    page_title="Avaliação de Tweets",
+    page_title="Avaliação de Tweets 2",
     page_icon="🔒",
     layout="wide"
 )
