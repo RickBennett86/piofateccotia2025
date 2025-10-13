@@ -6,8 +6,9 @@ import time
 # --- 1. CONFIGURAÇÕES ---
 # Lista dos seus tokens da API do X (Twitter).
 bearer_tokens = [
-    "AAAAAAAAAAAAAAAAAAAAAC2a4QEAAAAApwfT229DR9wtG1bPps%2FCn8PKTjs%3DvJhXmQvAx1CQz5wUm42npCzL9FThGdYeYvCH6QNIYuQki7zBD1", #easconta1
+    "SEU TOKEN",    
 ]
+
 
 # Configurações do seu banco de dados PostgreSQL no Render.
 config_pg = {

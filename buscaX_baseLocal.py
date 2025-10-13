@@ -9,10 +9,7 @@ import time
 # Lista dos seus tokens da API do X (Twitter).
 # Substitua os tokens de exemplo pelos seus.
 bearer_tokens = [
-    # "AAAAAAAAAAAAAAAAAAAAAC6u4AEAAAAAH1%2BPdBpSqN8Nr6Y8LOuiyBr5xbY%3DCXl64zwO0395Fa1AgJbFEGR01v1kspzuA65ExrW6LCj72M5Zsr", #henrick
-    "AAAAAAAAAAAAAAAAAAAAAP4u4QEAAAAAyJ7MBO2MAJmPzl2tpsKZlV1uQ%2Fk%3D42012qD4VCiky0tb7Y7HvAR1tw6sI41yKSqr33LT2wCHpUX0as", #easconta3
-    "AAAAAAAAAAAAAAAAAAAAANcu4QEAAAAAfpX6bZokyiFU%2FZyfvS372TemqbI%3DAMiaOEYtqAe7FaSHL3znTMiMKDai7LqVpIPEpusTScHGkze4DJ", #easconta2
-    "AAAAAAAAAAAAAAAAAAAAACiu4AEAAAAA5b7WRL8CXTE0LYaamW2JqCVlYOE%3D6LO3plW3z43nAtqccPft71nz56Ex3ns37htsq1qvDauNgF4J8m", #easconta1
+    "SEU TOKEN",    
 ]
 
 # Configurações do seu banco de dados MySQL.
