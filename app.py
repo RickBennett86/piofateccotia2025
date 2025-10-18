@@ -14,6 +14,7 @@ if not check_password():
 
 # --- Conteúdo da Página de Apresentação ---
 st.sidebar.success("Navegue pelas seções do projeto.")
+st.balloons()
 
 st.title("Projeto Integrador: Análise de Sentimentos em Tweets sobre Saúde Mental")
 
@@ -36,13 +37,13 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("👨‍🏫 Professor Orientador")
-    st.write("- Rômulo")
+    st.write("- Nome do Professor")
 
 with col2:
     st.subheader("👩‍💻 Integrantes do Grupo")
     st.write(
         """
-        - Emerson Silva
+        - Emerson Aparecido Silva
         - Fernando Vieira
         - Henrique
         - Lucas Juan
