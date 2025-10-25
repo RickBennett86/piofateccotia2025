@@ -12,11 +12,11 @@ st.markdown("---")
 st.subheader("Processo de Coleta")
 st.write(
     """
-    Buscamos inicialmente uma base pronta e atual com os temos relacionados ao tema do nosso trabalho, porém não encontramos. 
+    Buscamos inicialmente uma base pronta e atual com os termos relacionados ao tema do nosso trabalho, porém não encontramos. 
     Com isso, decidimos coletar nossos dados diretamente na API do X.
     Nosso primeiro desafio foi a limitação de uso da versão gratuita, 1 requisição por mês com retorno de apenas 100 registros.
-    Fizemos uma forma tarefa e criamos várias contas de desenvolvedor utilizando emails temporários.
-    Com isso, finalmente conseguimos uma quantidade de tokens suficientes e iniciamos a coleta dos dados. Cada chamada na API utilizavamos um termo especifico. 
+    Fizemos uma força tarefa e criamos várias contas de desenvolvedor utilizando emails temporários.
+    Com isso, finalmente conseguimos uma quantidade de tokens suficientes e iniciamos a coleta dos dados. Cada chamada na API utilizávamos um termo especifico. 
     """
 )
 
@@ -61,7 +61,7 @@ st.write(
     """
     Iniciamos com base local, em mysql. Porém, chegamos na conclusão que isso inviabilizaria a avaliação dos tweets por todo o
     grupo, pois, ficaria apenas na máquina de um integrante. Optamos então por se cadastrar na plataforma "Render.com" e 
-    criamos uma instância gratuita do Postgres, versão 17. Logo, todo o time conseguiu conectar na base e apoiar.
+    criamos uma instância gratuita do Postgre, versão 17. Logo, todo o time conseguiu conectar na base e apoiar.
     """
 )
 
@@ -69,7 +69,7 @@ st.subheader("Avaliação dos Tweets")
 st.write(
     """
     Aproveitamos o conhecimento em streamlit desenvolvido em sala de aula e criamos uma ferramenta para que nossa equipe pudesse avaliar
-    de forma sincrona, de onde estiver. Visita a seção "Avaliação dos Tweets" ao lado. 
+    de forma sincrona, de onde estiver. Visite a seção "Avaliação dos Tweets" ao lado. 
     """
 )
 
