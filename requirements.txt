@@ -1,3 +1,8 @@
 streamlit
-psycopg2-binary
 bcrypt
+psycopg2-binary
+pandas
+SQLAlchemy
+nltk
+scikit-learn
+plotly
