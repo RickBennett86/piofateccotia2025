@@ -8,7 +8,6 @@ st.set_page_config(page_title="Ferramentas Utilizadas", page_icon="🛠️", lay
 st.title("🛠️ Ferramentas e Tecnologias Utilizadas")
 st.markdown("---")
 
-# Dividi em colunas para organizar melhor o conteúdo
 col1, col2 = st.columns(2)
 
 with col1:
@@ -40,13 +39,9 @@ with col2:
     st.markdown("- **Visualização:** `matplotlib`, `wordcloud`, `plotly`")
     st.markdown("- **API de IA:** `google.generativeai`")
 
-    # Adicionando as especificações do computador da imagem
+    
     st.subheader("Ambiente de Desenvolvimento (Hardware)")
-    st.markdown("As análises e o desenvolvimento foram realizados no computador 'PC-DEV' com as seguintes especificações:")
-    with st.expander("Clique para ver as especificações"):
-        # Referencia a imagem que você enviou
-        st.image("image_fac62a.png", caption="Especificações do dispositivo de desenvolvimento")
-        st.markdown(
+    st.markdown(
             """
             - **Processador (CPU):** AMD Ryzen 7 5800X 8-Core (3.80 GHz)
             - **Memória RAM:** 32,0 GB
@@ -55,4 +50,4 @@ with col2:
             - **Sistema Operacional:** Windows (64 bits, processador x64)
             """
         )
-        st.caption("Nota: Para a imagem carregar, o arquivo 'image_fac62a.png' deve estar na pasta raiz do projeto (junto com 'app.py').")
+        
